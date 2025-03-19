@@ -56,6 +56,8 @@ export default function Home() {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!user) return <p>Loading user data...</p>;
 
+  console.log(user)
+
 
   return (
     <div className="flex flex-col  bg-blue-200  max-md:w-full rounded-t-lg">
