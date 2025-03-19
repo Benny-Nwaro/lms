@@ -34,7 +34,7 @@ export default function SubmissionsPage() {
     const fetchSubmissions = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/v1/submissions", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/submissions`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
