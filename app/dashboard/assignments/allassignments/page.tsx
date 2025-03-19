@@ -17,23 +17,25 @@ export default function AssignmentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
+  // Only access localStorage on the client
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) setStudentId(storedUserId);
+    if (typeof window !== "undefined") {
+      const storedUserId = localStorage.getItem("userId");
+      const storedToken = localStorage.getItem("token");
+
+      if (storedUserId) setStudentId(storedUserId);
+      if (storedToken) setToken(storedToken);
+    }
   }, []);
 
   useEffect(() => {
     const fetchAssignments = async () => {
+      if (!token) return; // Ensure token is available before making request
+
       setLoading(true);
       setError(null);
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No authentication token found. Please log in.");
-        setLoading(false);
-        return;
-      }
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments`, {
@@ -58,8 +60,8 @@ export default function AssignmentsPage() {
       }
     };
 
-    fetchAssignments();
-  }, []);
+    if (token) fetchAssignments();
+  }, [token]); // Fetch assignments only when token is available
 
   // Function to open modal with selected assignment
   const handleAssignmentClick = (assignment: Assignment) => {

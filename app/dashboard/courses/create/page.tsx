@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Page() {
   const [title, setTitle] = useState("");
@@ -9,23 +9,27 @@ export default function Page() {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [instructorId, setInstructorId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  // Retrieve userId and token from localStorage
-  const instructorId =
-    typeof window !== "undefined" ? localStorage.getItem("userId") : null;
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  // Retrieve userId and token safely on the client side
+  useEffect(() => {
+      setInstructorId(localStorage.getItem("userId"));
+      setToken(localStorage.getItem("token"));
+    
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
 
     if (!title.trim() || !coursePrice.trim() || !instructorId) {
-      setMessage("Title, course price are required, and you must be logged in as a teacher.");
+      setMessage("Title and course price are required, and you must be logged in as a teacher.");
       return;
     }
 
-    if (isNaN(Number(coursePrice)) || Number(coursePrice) <= 0) {
+    const parsedPrice = Number(coursePrice);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
       setMessage("Course price must be a valid positive number.");
       return;
     }
@@ -42,7 +46,7 @@ export default function Page() {
         body: JSON.stringify({
           title,
           description,
-          coursePrice: Number(coursePrice),
+          coursePrice: parsedPrice,
           instructorId,
         }),
       });
@@ -71,13 +75,13 @@ export default function Page() {
         if (!imageResponse.ok) throw new Error("Failed to upload course image.");
       }
 
-      setMessage("Course registered successfully!");
+      setMessage("✅ Course registered successfully!");
       setTitle("");
       setDescription("");
       setCoursePrice("");
       setImage(null);
     } catch (error: any) {
-      setMessage(error.message);
+      setMessage(`❌ ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -87,11 +91,7 @@ export default function Page() {
     <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
       <h2 className="text-2xl font-bold mb-4">Register a Course</h2>
       {message && (
-        <p
-          className={`mb-4 text-sm ${
-            message.includes("success") ? "text-green-600" : "text-red-500"
-          }`}
-        >
+        <p className={`mb-4 text-sm ${message.startsWith("✅") ? "text-green-600" : "text-red-500"}`}>
           {message}
         </p>
       )}
@@ -120,7 +120,7 @@ export default function Page() {
         <div>
           <label className="block font-medium text-gray-700">Course Price</label>
           <input
-            type="text"
+            type="number"
             value={coursePrice}
             onChange={(e) => setCoursePrice(e.target.value)}
             required

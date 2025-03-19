@@ -12,24 +12,56 @@ interface Course {
 
 export default function EnrolledCourses() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  // Ensure localStorage is accessed only on the client
+  useEffect(() => {
+      const storedUserId = localStorage.getItem("userId");
+      const storedToken = localStorage.getItem("token");
+      if (storedUserId) setUserId(storedUserId);
+      if (storedToken) setToken(storedToken);
+    
+  }, []);
 
   useEffect(() => {
-    // Retrieve userId and token inside useEffect
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
+    if (!userId || !token) {
+      setLoading(false);
+      return;
+    }
 
-    if (!userId || !token) return;
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/enrollments/student/${userId}/courses`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/enrollments/student/${userId}/courses`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setCourses(data))
-      .catch((err) => console.error("Error fetching courses:", err));
-  }, []); // Empty dependency array ensures this runs only once
+        if (!response.ok) {
+          throw new Error("Failed to fetch enrolled courses.");
+        }
+
+        const data: Course[] = await response.json();
+        setCourses(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, [userId, token]); // Fetch only when userId and token are available
+
+  if (loading) return <p>Loading enrolled courses...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="container mx-auto p-4">

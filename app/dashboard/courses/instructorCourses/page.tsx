@@ -22,8 +22,8 @@ export default function CoursesList() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const storedUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+    const storedToken = localStorage.getItem("token") 
+    const storedUserId = localStorage.getItem("userId") 
 
     setToken(storedToken);
     setUserId(storedUserId);

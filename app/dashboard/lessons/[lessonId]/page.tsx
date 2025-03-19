@@ -24,10 +24,9 @@ const LessonDetail = () => {
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
       const storedRole = localStorage.getItem("role");
       setRole(storedRole);
-    }
+    
   }, []);
 
   useEffect(() => {
@@ -37,7 +36,7 @@ const LessonDetail = () => {
       return;
     }
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token =  localStorage.getItem("token") 
     if (!token) {
       setError("Unauthorized: No token found.");
       setLoading(false);

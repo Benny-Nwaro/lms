@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface Assignment {
@@ -14,15 +14,31 @@ interface Submission {
   content: string;
 }
 
-export default function AssignmentModal({ studentId, assignment, onClose }: { 
-  studentId: string; 
-  assignment: Assignment; 
-  onClose: () => void; 
+export default function AssignmentModal({
+  studentId,
+  assignment,
+  onClose,
+}: {
+  studentId: string;
+  assignment: Assignment;
+  onClose: () => void;
 }) {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) setToken(storedToken);
+      } catch (error) {
+        console.error("Error accessing localStorage:", error);
+      }
+    }
+  }, []);
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -30,22 +46,26 @@ export default function AssignmentModal({ studentId, assignment, onClose }: {
       return;
     }
 
+    if (!token) {
+      setError("Authentication token missing. Please log in again.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const token = localStorage.getItem("token");
-    const submission: Submission = { 
-      assignmentId: assignment.assignmentId, 
-      studentId, 
-      content 
+    const submission: Submission = {
+      assignmentId: assignment.assignmentId,
+      studentId,
+      content,
     };
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/submissions`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json", 
-          Authorization: `Bearer ${token}` 
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(submission),
       });
@@ -69,7 +89,6 @@ export default function AssignmentModal({ studentId, assignment, onClose }: {
       <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
         <h2 className="text-xl font-bold mb-4">Submit Assignment</h2>
 
-        {/* Display Selected Assignment Title */}
         <p className="mb-2 font-semibold">Assignment: {assignment.title}</p>
 
         <label className="block mb-2">Your Submission</label>

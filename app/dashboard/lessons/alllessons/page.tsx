@@ -16,7 +16,7 @@ const page = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = localStorage.getItem("token") 
 
     if (!token) {
       setError("Unauthorized: No token found");

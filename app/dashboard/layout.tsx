@@ -5,8 +5,6 @@ import Chat from '../ui/chat/Chat';
 import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import Home from '../ui/dashboard/home';
 
-
-
 interface User {
   id: string;
   firstName: string;
@@ -15,13 +13,16 @@ interface User {
   role: string;
   profileImageUrl?: string; 
 }
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [role, setRole] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
+
     const token = localStorage.getItem("token");
     if (!token) {
       setError("No authentication token found");
@@ -44,11 +45,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         const data: User = await response.json();
         setUser(data);
+        setRole(data.role);
+        setUserId(data.id);
 
-        localStorage.setItem("role", data.role);
-        localStorage.setItem("userId", data.id);
-        localStorage.setItem("email", data.email)
-        if (data.profileImageUrl) {
+        // Store only if values are different
+        if (localStorage.getItem("role") !== data.role) {
+          localStorage.setItem("role", data.role);
+        }
+        if (localStorage.getItem("userId") !== data.id) {
+          localStorage.setItem("userId", data.id);
+        }
+        if (localStorage.getItem("email") !== data.email) {
+          localStorage.setItem("email", data.email);
+        }
+        if (data.profileImageUrl && localStorage.getItem("profileImageUrl") !== data.profileImageUrl) {
           localStorage.setItem("profileImageUrl", data.profileImageUrl);
         }
       } catch (err: any) {
@@ -59,22 +69,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     fetchUserData();
   }, []);
 
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedRole = localStorage.getItem("role");
-      setRole(storedRole);
-    }
-  });
-
   return (
     <div className="flex h-screen flex-col md:flex-row lg:overflow-hidden">
       <div className="w-full flex-none md:w-64 max-md:sticky max-md:top-0 max-md:z-50">
-        <SideNav role={role} userId={localStorage.getItem("userId")} />
+        <SideNav role={role} userId={userId} />
       </div>
-      <div className='flex-col lg:overflow-auto lg:w-full '>
+      <div className='flex-col lg:overflow-auto lg:w-full'>
         <div className='max-w-6xl lg:mx-16 mt-4 sticky top-4 max-md:top-40 z-50 max-md:w-full max-md:px-4'>
-            <Home/>
+          <Home />
         </div>
         <div className="flex-grow max-w-7xl p-4 md:overflow-y-auto md:p-12 overflow-scroll">
           {children}
@@ -86,7 +88,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </span>
 
         {/* Floating Chat Button & Tooltip */}
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end ">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
           {isChatOpen && (
             <div className="mb-2 w-80 bg-white border rounded-t-3xl rounded-bl-3xl shadow-lg p-3 relative border-blue-900 mr-12 z-50">
               <Chat />

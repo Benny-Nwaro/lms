@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import PayButton from "./PayButton"; // Import the existing PayButton component
 
@@ -9,11 +11,13 @@ const PaymentForm = ({
   const [email, setEmail] = useState("");
 
   useEffect(() => {
-    // Retrieve student email from local storage
-    const storedEmail = localStorage.getItem("email");
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
+    // if (typeof window !== "undefined") {
+      // Retrieve student email from local storage only on client-side
+      const storedEmail = localStorage.getItem("email");
+      if (storedEmail) {
+        setEmail(storedEmail);
+      }
+    
   }, []);
 
   return (
