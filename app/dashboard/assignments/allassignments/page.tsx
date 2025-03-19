@@ -18,14 +18,9 @@ export default function AssignmentsPage() {
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [studentId, setStudentId] = useState<string | null>(null);
 
-  // Fetch student ID from localStorage
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setStudentId(storedUserId);
-    } else {
-      console.error("No student ID found in localStorage.");
-    }
+    if (storedUserId) setStudentId(storedUserId);
   }, []);
 
   useEffect(() => {
@@ -50,7 +45,8 @@ export default function AssignmentsPage() {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch assignments. Please check your authentication.");
+          const errorData = await response.json();
+          throw new Error(errorData?.message || "Failed to fetch assignments.");
         }
 
         const data: Assignment[] = await response.json();
@@ -81,24 +77,31 @@ export default function AssignmentsPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Assignments</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {assignments.map((assignment) => (
-          <div
-            key={assignment.assignmentId}
-            className="border p-4 rounded shadow cursor-pointer transform transition duration-300 hover:scale-105"
-            onClick={() => handleAssignmentClick(assignment)} // Open modal on click
-          >
-            <img
-              src="https://t3.ftcdn.net/jpg/01/27/17/00/360_F_127170057_T8TeGnPWtYX24uTpSjeIT0500sUxi9M1.jpg"
-              alt="Assignment"
-              className="w-full h-48 object-cover mb-2"
-            />
-            <h2 className="text-xl font-semibold">{assignment.title}</h2>
-            <p className="text-gray-700">{assignment.description}</p>
-            <p className="text-sm text-gray-500">Due: {assignment.dueDate}</p>
-          </div>
-        ))}
-      </div>
+
+      {assignments.length === 0 ? (
+        <p className="text-gray-500">No assignments available.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {assignments.map((assignment) => (
+            <div
+              key={assignment.assignmentId}
+              className="border p-4 rounded shadow cursor-pointer transform transition duration-300 hover:scale-105"
+              onClick={() => handleAssignmentClick(assignment)}
+            >
+              <img
+                src="https://t3.ftcdn.net/jpg/01/27/17/00/360_F_127170057_T8TeGnPWtYX24uTpSjeIT0500sUxi9M1.jpg"
+                alt="Assignment"
+                className="w-full h-48 object-cover mb-2"
+              />
+              <h2 className="text-xl font-semibold">{assignment.title}</h2>
+              <p className="text-gray-700">{assignment.description}</p>
+              <p className="text-sm text-gray-500">
+                Due: {new Date(assignment.dueDate).toLocaleDateString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Render AssignmentModal when an assignment is selected */}
       {selectedAssignment && studentId && (
