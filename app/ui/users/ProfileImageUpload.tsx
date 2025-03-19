@@ -69,7 +69,7 @@ export default function UserProfileUpdate() {
 
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}`, {
+        const response = await fetch(`http://localhost:8080/api/v1/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -94,7 +94,7 @@ export default function UserProfileUpdate() {
   
     const fetchSocialMediaProfiles = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/social-media/${userId}`, {
+        const response = await fetch(`http://localhost:8080/api/v1/social-media/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -139,7 +139,7 @@ export default function UserProfileUpdate() {
     formData.append("file", selectedFile);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}/uploadProfileImage`, {
+      const response = await fetch(`http://localhost:8080/api/v1/users/${userId}/uploadProfileImage`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -166,7 +166,7 @@ export default function UserProfileUpdate() {
     try {
       const updatedUser = { ...user, gender: user.gender.toUpperCase() }; // Ensure gender is uppercase before sending
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}`, {
+      const response = await fetch(`http://localhost:8080/api/v1/users/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -194,7 +194,7 @@ export default function UserProfileUpdate() {
       e.preventDefault();
       if (!userId || !token) return;
   
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/social-media/${userId}`, {
+      fetch(`http://localhost:8080/api/v1/social-media/${userId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +235,7 @@ export default function UserProfileUpdate() {
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
             <div style={{ position: "relative" }}>
                 <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}${user?.profileImageUrl}`}
+                src={`http://localhost:8080${user?.profileImageUrl}`}
                 alt="Profile"
                 style={{
                     width: "6rem",
@@ -303,7 +303,7 @@ export default function UserProfileUpdate() {
                 {field.type === "textarea" ? (
                     <textarea
                     name={field.name}
-                    value={user?.[field.name] || ""}
+                    value={user?.[field.name as keyof UserProfile] || ""}
                     onChange={handleInputChange}
                     style={{
                         width: "100%",
@@ -319,7 +319,7 @@ export default function UserProfileUpdate() {
                     <input
                     type={field.type}
                     name={field.name}
-                    value={user?.[field.name] || ""}
+                    value={user?.[field.name as keyof UserProfile] || ""}
                     onChange={handleInputChange}
                     style={{
                         width: "100%",
