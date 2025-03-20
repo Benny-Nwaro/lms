@@ -60,7 +60,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col  bg-red-900  max-md:w-full rounded-t-lg">
+    <div className="flex flex-col  bg-blue-200  max-md:w-full rounded-t-lg">
       <div className="p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Welcome, {user.firstName}!</h1>
 
