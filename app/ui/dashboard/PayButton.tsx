@@ -1,19 +1,30 @@
-import { PaystackButton } from "react-paystack";
+"use client";
+// import { PaystackButton } from "react-paystack";
+import dynamic from "next/dynamic";
+const PaystackButton = dynamic(() => import("react-paystack").then((mod) => mod.PaystackButton), {
+  ssr: false,
+});
+
 
 const PayButton = ({
   email,
   amount,
-  courseId, 
+  courseId,
+  token, 
 }: {
   email: string;
   amount: number;
-  courseId: string; 
+  courseId: string;
+  token: string; 
 }) => {
   const publicKey = "pk_test_385cf61e72cf12a464e715aa4c6058105adcff51";
 
-  // Function to send payment reference to backend
   const verifyPayment = async (reference: string) => {
-    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token is missing! Cannot verify payment.");
+      alert("Authentication error. Please log in again.");
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -22,9 +33,9 @@ const PayButton = ({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Use token prop directly
           },
-          body: JSON.stringify({ reference, email, courseId }), 
+          body: JSON.stringify({ reference, email, courseId }),
         }
       );
 
@@ -47,7 +58,7 @@ const PayButton = ({
       <PaystackButton
         className="bg-blue-500 text-white px-4 py-2 rounded"
         email={email}
-        amount={amount * 100} 
+        amount={amount * 100}
         publicKey={publicKey}
         text="Pay Now"
         onSuccess={({ reference }) => {

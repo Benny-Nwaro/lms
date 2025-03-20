@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-// import PaymentForm from "@/app/ui/dashboard/paymentForm"; 
+import PaymentForm from "@/app/ui/dashboard/paymentForm"; 
 const defaultImage = "/courseimage.jpg"; // Placeholder image
 
 interface Course {
@@ -20,6 +20,7 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
@@ -28,8 +29,9 @@ export default function Page() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsClient(true);
-      const storedToken = localStorage.getItem("token");
+      const storedToken = localStorage.getItem("token") || "";
       const storedUserId = localStorage.getItem("userId");
+      const storedEmail = localStorage.getItem("email")
 
       if (!storedToken || !storedUserId) {
         setError("Unauthorized: No token or user ID found");
@@ -39,6 +41,7 @@ export default function Page() {
 
       setToken(storedToken);
       setUserId(storedUserId);
+      setUserEmail(storedEmail)
     }
   }, []);
 
@@ -158,8 +161,8 @@ export default function Page() {
             >
               ✕
             </button>
-            {/* <PaymentForm course={selectedCourse} /> */}
-          </div>
+            <PaymentForm course={selectedCourse} email={userEmail || ""} token={token || ""} />
+            </div>
         </div>
       )}
     </div>

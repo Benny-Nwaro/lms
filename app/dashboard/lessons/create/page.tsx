@@ -8,139 +8,149 @@ interface Course {
 }
 
 export default function Page() {
-  // const [courses, setCourses] = useState<Course[]>([]);
-  // const [formData, setFormData] = useState({
-  //   courseId: "",
-  //   title: "",
-  //   content: "",
-  //   videoUrl: "",
-  // });
-  // const [error, setError] = useState<string | null>(null);
-  // const [success, setSuccess] = useState<string | null>(null);
-  // const token =  localStorage.getItem("token") 
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [formData, setFormData] = useState({
+    courseId: "",
+    title: "",
+    content: "",
+    videoUrl: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null); // Store token in state
 
-  // useEffect(() => {
-  //   if (!token) {
-  //     setError("Unauthorized: No token found");
-  //     return;
-  //   }
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token"); 
+    setToken(storedToken); // Load token from localStorage once the component mounts
+  }, []);
 
-  //   const fetchCourses = async () => {
-  //     try {
-  //       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/courses`, {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
+  useEffect(() => {
+    if (!token) {
+      setError("Unauthorized: No token found");
+      return;
+    }
 
-  //       if (!response.ok) throw new Error("Failed to fetch courses");
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/courses`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  //       const data = await response.json();
-  //       setCourses(data);
-  //     } catch (err: any) {
-  //       setError(err.message);
-  //     }
-  //   };
+        if (!response.ok) throw new Error("Failed to fetch courses");
 
-  //   fetchCourses();
-  // }, [token]);
+        const data = await response.json();
+        setCourses(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
 
-  // const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
-  // };
+    fetchCourses();
+  }, [token]); // Fetch courses only when token is available
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setError(null);
-  //   setSuccess(null);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  //   try {
-  //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/lessons`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(formData),
-  //     });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
 
-  //     if (!response.ok) throw new Error("Failed to create lesson");
+    if (!token) {
+      setError("Unauthorized: No token found");
+      return;
+    }
 
-  //     setSuccess("Lesson created successfully!");
-  //     setFormData({ courseId: "", title: "", content: "", videoUrl: "" });
-  //   } catch (err: any) {
-  //     setError(err.message);
-  //   }
-  // };
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/lessons`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Failed to create lesson");
+
+      setSuccess("Lesson created successfully!");
+      setFormData({ courseId: "", title: "", content: "", videoUrl: "" });
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
 
   return (
-    <div>create lessons</div>
-    // <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-md">
-    //   <h2 className="text-xl font-bold mb-4">Create a Lesson</h2>
-    //   {error && <p className="text-red-500">{error}</p>}
-    //   {success && <p className="text-green-500">{success}</p>}
-    //   <form onSubmit={handleSubmit} className="space-y-4">
-    //     <div>
-    //       <label className="block text-gray-700">Course</label>
-    //       <select
-    //         name="courseId"
-    //         value={formData.courseId}
-    //         onChange={handleChange}
-    //         required
-    //         className="w-full p-2 border rounded"
-    //       >
-    //         <option value="">Select a course</option>
-    //         {courses.map((course) => (
-    //           <option key={course.courseId} value={course.courseId}>
-    //             {course.title}
-    //           </option>
-    //         ))}
-    //       </select>
-    //     </div>
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-md">
+      <h2 className="text-xl font-bold mb-4">Create a Lesson</h2>
+      {error && <p className="text-red-500">{error}</p>}
+      {success && <p className="text-green-500">{success}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-gray-700">Course</label>
+          <select
+            name="courseId"
+            value={formData.courseId}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select a course</option>
+            {courses.map((course) => (
+              <option key={course.courseId} value={course.courseId}>
+                {course.title}
+              </option>
+            ))}
+          </select>
+        </div>
 
-    //     <div>
-    //       <label className="block text-gray-700">Title</label>
-    //       <input
-    //         type="text"
-    //         name="title"
-    //         value={formData.title}
-    //         onChange={handleChange}
-    //         required
-    //         className="w-full p-2 border rounded"
-    //       />
-    //     </div>
+        <div>
+          <label className="block text-gray-700">Title</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded"
+          />
+        </div>
 
-    //     <div>
-    //       <label className="block text-gray-700">Content</label>
-    //       <textarea
-    //         name="content"
-    //         value={formData.content}
-    //         onChange={handleChange}
-    //         required
-    //         className="w-full p-2 border rounded"
-    //       ></textarea>
-    //     </div>
+        <div>
+          <label className="block text-gray-700">Content</label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded"
+          ></textarea>
+        </div>
 
-    //     <div>
-    //       <label className="block text-gray-700">Video URL</label>
-    //       <input
-    //         type="url"
-    //         name="videoUrl"
-    //         value={formData.videoUrl}
-    //         onChange={handleChange}
-    //         className="w-full p-2 border rounded"
-    //       />
-    //     </div>
+        <div>
+          <label className="block text-gray-700">Video URL</label>
+          <input
+            type="url"
+            name="videoUrl"
+            value={formData.videoUrl}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
 
-    //     <button
-    //       type="submit"
-    //       className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-    //     >
-    //       Create Lesson
-    //     </button>
-    //   </form>
-    // </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          disabled={!token} // Disable button if no token
+        >
+          Create Lesson
+        </button>
+      </form>
+    </div>
   );
 }
