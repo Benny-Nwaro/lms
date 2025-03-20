@@ -53,36 +53,39 @@ export default function useWebSocket() {
     getUserDetails();
   }, []);
 
-  // WebSocket Connection
   useEffect(() => {
+    const token = localStorage.getItem("token"); // Get JWT token
+
     const socket = new SockJS(SOCKET_URL);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
+      connectHeaders: {
+        Authorization: `Bearer ${token}`, // Send JWT token
+      },
       onConnect: () => {
         console.log("Connected to WebSocket");
 
         client.subscribe("/topic/public", (message) => {
-            console.log("✅ WebSocket Message Received: ", message.body); // Ensure message is received
-          
-            try {
-              const receivedMessage = JSON.parse(message.body);
-              console.log("📩 Parsed Message: ", receivedMessage);
-          
-              setMessages((prevMessages) => [
-                ...prevMessages,
-                {
-                  senderId: receivedMessage.senderId,
-                  senderName: receivedMessage.senderName || "Unknown",
-                  content: receivedMessage.content,
-                  profileImageUrl: receivedMessage.profileImageUrl || "/default-avatar.png",
-                },
-              ]);
-            } catch (error) {
-              console.error("❌ Error parsing WebSocket message:", error);
-            }
-          });
-          
+          console.log("WebSocket Message Received: ", message.body);
+
+          try {
+            const receivedMessage = JSON.parse(message.body);
+            console.log("Parsed Message: ", receivedMessage);
+
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                senderId: receivedMessage.senderId,
+                senderName: receivedMessage.senderName || "Unknown",
+                content: receivedMessage.content,
+                profileImageUrl: receivedMessage.profileImageUrl || "/default-avatar.png",
+              },
+            ]);
+          } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+          }
+        });
       },
       onStompError: (error) => {
         console.error("WebSocket Error:", error);
@@ -107,7 +110,7 @@ export default function useWebSocket() {
         type: "CHAT",
       };
 
-      console.log("Sending message:", chatMessage); // Debugging
+      console.log("Sending message:", chatMessage);
 
       stompClient.publish({ destination: "/app/chat.sendMessage", body: JSON.stringify(chatMessage) });
     } else {
