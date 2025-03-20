@@ -11,13 +11,13 @@ const PaymentForm = ({
   const [email, setEmail] = useState("");
 
   useEffect(() => {
-    // if (typeof window !== "undefined") {
+    if (typeof window !== "undefined") {
       // Retrieve student email from local storage only on client-side
       const storedEmail = localStorage.getItem("email");
       if (storedEmail) {
         setEmail(storedEmail);
       }
-    
+    }
   }, []);
 
   return (

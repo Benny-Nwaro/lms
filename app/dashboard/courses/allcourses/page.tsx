@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import PaymentForm from "@/app/ui/dashboard/paymentForm"; // Import PaymentForm component
-
+// import PaymentForm from "@/app/ui/dashboard/paymentForm"; 
 const defaultImage = "/courseimage.jpg"; // Placeholder image
 
 interface Course {
@@ -25,10 +24,10 @@ export default function Page() {
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
 
+  // Ensure this runs only in the browser
   useEffect(() => {
-    setIsClient(true); // Ensures rendering happens only on the client
-
     if (typeof window !== "undefined") {
+      setIsClient(true);
       const storedToken = localStorage.getItem("token");
       const storedUserId = localStorage.getItem("userId");
 
@@ -159,7 +158,7 @@ export default function Page() {
             >
               ✕
             </button>
-            <PaymentForm course={selectedCourse} />
+            {/* <PaymentForm course={selectedCourse} /> */}
           </div>
         </div>
       )}
