@@ -19,6 +19,7 @@ export default function Chat() {
     }
   };
 
+
   return (
     <div className="p-3 w-full bg-white rounded-t-lg rounded-bl-lg z-50">
       <h2 className="text-md font-semibold mb-2 text-center  text-blue-900"> Chat Room</h2>
@@ -27,7 +28,7 @@ export default function Chat() {
           messages.map((msg, index) => (
             <div key={index} className="flex items-center space-x-2 bg-blue-300 rounded-lg w-fit px-2 py-1 bg-opacity-20">
               <Image 
-                src={msg.profileImageUrl.startsWith("http") ? msg.profileImageUrl : `${process.env.NEXT_PUBLIC_API_URL}${msg.profileImageUrl}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}${msg.profileImageUrl}`}
                 alt={msg.senderName || "Unknown"} 
                 width={24} 
                 height={24} 
