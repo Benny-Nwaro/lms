@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import {  useParams } from "next/navigation";
 
 interface SocialMediaProfile {
   id: string;
@@ -15,7 +15,6 @@ export default function SocialMediaPage() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const { userId } = useParams(); // Get userId from URL
 
   useEffect(() => {
