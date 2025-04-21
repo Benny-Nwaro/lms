@@ -2,11 +2,11 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["localhost", "exceptionhandling-production.up.railway.app"], // Add your production domain here
+    domains: ["localhost", "https://flexi-lms-app-8a3b766e82f3.herokuapp.com"], // Add your production domain here
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "exceptionhandling-production.up.railway.app",
+        hostname: "https://flexi-lms-app-8a3b766e82f3.herokuapp.com",
         pathname: "/uploads/**", // Allow images from the `/uploads/` directory
       },
     ],
